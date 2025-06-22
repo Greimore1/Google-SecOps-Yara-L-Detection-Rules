@@ -11,7 +11,7 @@ I started with no knowledge of YARA-L or Chronicle’s detection engine. Through
 3. How to structure `outcome` blocks for SOC-friendly enrichment
 4. How to turn real-world TTPs (tactics, techniques, procedures) into rules (this is a slow process)
 
-## 🛠Rules Overview
+## Rules Overview
 
 All rules are:
 - Written using the `filter()` method
