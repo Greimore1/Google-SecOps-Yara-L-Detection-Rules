@@ -1,0 +1,18 @@
+rule rule_clear_event_logs {
+  meta:
+    author = "Greimore1"
+    description = "Detects use of wevtutil to clear logs"
+    severity = "High"
+
+  condition:
+    $matched := filter(
+      $event,
+      $event.metadata.event_type == "PROCESS_LAUNCH" and
+      $event.process.command_line contains "wevtutil cl"
+    )
+    $matched
+}
+
+outcome:
+  $users = array_distinct($matched.principal.user.user_id)
+  $cmdlines = array_distinct($matched.process.command_line)

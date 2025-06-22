@@ -1,0 +1,19 @@
+rule rule_parent_spawning_cmd {
+  meta:
+    author = "Greimore1"
+    description = "Detects Office apps spawning cmd.exe"
+    severity = "Medium"
+
+  condition:
+    $matched := filter(
+      $event,
+      $event.metadata.event_type == "PROCESS_LAUNCH" and
+      $event.process.parent_image contains "winword.exe" and
+      $event.process.file.full_path contains "cmd.exe"
+    )
+    $matched
+}
+
+outcome:
+  $cmdlines = array_distinct($matched.process.command_line)
+  $parent = array_distinct($matched.process.parent_image)

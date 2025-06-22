@@ -1,0 +1,19 @@
+
+rule rule_outbound_to_unusual_country {
+  meta:
+    author = "Greimore1"
+    description = "Detects outbound traffic to restricted country"
+    severity = "High"
+
+  condition:
+    $matched := filter(
+      $event,
+      $event.metadata.event_type == "NETWORK_CONNECTION_ATTEMPT" and
+      $event.network.destination_geo.country_code in ("KP", "IR")
+    )
+    $matched
+}
+
+outcome:
+  $countries = array_distinct($matched.network.destination_geo.country_code)
+  $dst_ips = array_distinct($matched.network.destination_ip)

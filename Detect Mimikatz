@@ -1,0 +1,23 @@
+rule detect_mimikatz_process {
+  meta:
+    author = "Greimore1"
+    description = "Detects mimikatz execution through process command lines, excluding admin user"
+    severity = "High"
+
+  condition:
+    $matched := filter(
+      $event,
+      $event.metadata.event_type == "PROCESS_LAUNCH" and
+      (
+        $event.process.command_line matches /(?i).*\\mimikatz(\.exe)?(\s+.*)?/ or
+        $event.process.command_line matches /(?i).*sekurlsa::logonpasswords.*/
+      ) and
+      not ($event.principal.user.user_principal_name == "admin@domain.com")
+    )
+    count($matched) > 0
+
+  outcome:
+    $command_lines = array_distinct($matched?.process?.command_line)
+    $hostnames = array_distinct($matched?.principal?.hostname)
+    $user_ids = array_distinct($matched?.principal?.user?.user_id)
+}

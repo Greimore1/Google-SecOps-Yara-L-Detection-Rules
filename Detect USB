@@ -1,0 +1,20 @@
+rule rule_usb_insertion {
+  meta:
+    author = "Greimore1"
+    description = "Detects USB drive insertions"
+    severity = "Low"
+
+  condition:
+    $matched := filter(
+      $event,
+      $event.metadata.event_type == "DEVICE_INSERTED" and
+      exists $event.device.vendor_id and
+      $event.device.vendor_id != null and
+      $event.device.vendor_id != ""
+    )
+    count($matched) > 0
+
+  outcome:
+    $device_ids = array_distinct($matched?.device?.device_id)
+    $vendor_ids = array_distinct($matched?.device?.vendor_id)
+}

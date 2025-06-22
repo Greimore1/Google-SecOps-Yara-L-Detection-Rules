@@ -1,0 +1,19 @@
+
+rule rule_rare_process_by_user {
+  meta:
+    author = "Greimore1"
+    description = "Detects a user executing a rarely seen binary"
+    severity = "Medium"
+
+  condition:
+    $matched := filter(
+      $event,
+      $event.metadata.event_type == "PROCESS_LAUNCH" and
+      $event.process.file.full_path contains "/tmp/" // example for Linux env
+    )
+    $matched
+}
+
+outcome:
+  $users = array_distinct($matched.principal.user.user_id)
+  $paths = array_distinct($matched.process.file.full_path)

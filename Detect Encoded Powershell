@@ -1,0 +1,20 @@
+rule rule_encoded_powershell {
+  meta:
+    author = "Greimore1"
+    description = "Detects base64-encoded PowerShell commands"
+    severity = "Medium"
+
+  condition:
+    $matched := filter(
+      $event,
+      $event.metadata.event_type == "PROCESS_LAUNCH" and
+      $event.process.command_line matches /(?i).*powershell.*-encoded(command)?\s+[A-Za-z0-9+/=]{30,}/
+    )
+    $matched
+}
+
+outcome:
+  $command_lines = array_distinct($matched.process.command_line)
+  $user_ids = array_distinct($matched.principal.user.user_id)
+  $hostnames = array_distinct($matched.principal.hostname)
+  $sha256s = array_distinct($matched.process.sha256)
